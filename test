@@ -1,0 +1,655 @@
+import sqlite3
+import datetime
+
+import pandas as pd
+
+from datetime import datetime
+from datetime import timedelta, datetime
+from PyQt5.QtWidgets import QCalendarWidget, QMessageBox, QApplication, QTableWidget, QHeaderView, QTableWidgetItem, QMainWindow, QPushButton, QHBoxLayout, QWidget, QVBoxLayout, QStackedLayout, QInputDialog, QCheckBox, QMenuBar, QMenu, QAction
+from PyQt5.QtCore import Qt
+from PyQt5 import *
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QSortFilterProxyModel
+from tkinter import messagebox
+
+from tkinter import *
+import tkinter as tk
+from tkinter import Tk, font
+import tkinter.font as tkFont
+from ctypes import windll
+windll.shcore.SetProcessDpiAwareness(1)
+
+from PyQt5.QtGui import QPixmap, QScreen
+
+from PyQt5 import QtPrintSupport
+
+from PyQt5.QtPrintSupport import QPrintDialog, QPrinter
+
+
+def print_form(self):
+    printer = QPrinter(QPrinter.HighResolution)
+    dialog = QPrintDialog(printer)
+    if dialog.exec_() == QPrintDialog.Accepted:
+        self.textEdit.print_(printer)
+
+
+#defining login function
+def login():
+    #getting form data
+    uname=username.get()
+    pwd=password.get()
+    #applying empty validation
+    if uname=='' or pwd=='':
+        message.set("Obavezan unos!")
+    else:
+        #open database
+        conn = sqlite3.connect(r'C:\Users\saobracajni\Desktop\test\users.db')
+        #select query
+        cursor = conn.execute('SELECT * from ADMIN where USERNAME="%s" and PASSWORD="%s"'%(uname,pwd))
+        #fetch data 
+        if cursor.fetchone(): 
+            login_screen.destroy()
+                    
+            # Connect to the database
+            conn = sqlite3.connect(r'C:\Users\saobracajni\Desktop\test\test.db')
+
+            # Create a cursor
+            cursor = conn.cursor()
+
+            # Select all records from the table
+            cursor.execute('''SELECT * FROM records''')
+
+            # Fetch all records
+            records = cursor.fetchall()
+            
+            def refresh_table():
+                # Select all records from the table
+                cursor.execute('''SELECT * FROM records ORDER BY strftime('%d-%m-%Y', date), starttime''')
+
+                # Fetch all records
+                records = cursor.fetchall()  
+
+                # Set the number of rows and columns
+                table.setRowCount(len(records))
+                table.setColumnCount(4)
+
+                # Set the row height to 20 pixels
+                row_height = 10
+
+                # Set the row height for all rows
+                for i in range(table.rowCount()):
+                    table.setRowHeight(i, row_height)
+
+                # Iterate through all rows
+                for i in range(row_count):
+                    # Set the row height
+                    table.setRowHeight(i, row_height)
+                    
+                # Add the records to the table
+                for i, record in enumerate(records):
+                    name_item = QTableWidgetItem(record[0])
+                    date_item = QTableWidgetItem(record[1])
+                    start_item = QTableWidgetItem(record[2])
+                    end_item = QTableWidgetItem(record[3])
+                    name_item.setTextAlignment(Qt.AlignCenter)
+                    date_item.setTextAlignment(Qt.AlignCenter)
+                    start_item.setTextAlignment(Qt.AlignCenter)
+                    end_item.setTextAlignment(Qt.AlignCenter)
+                    table.setItem(i, 0, name_item)
+                    table.setItem(i, 1, date_item)
+                    table.setItem(i, 2, start_item)
+                    table.setItem(i, 3, end_item)
+
+            # Create a QApplication and a QMainWindow
+            app = QApplication([])
+            window = QMainWindow()
+            window.setWindowIcon(QtGui.QIcon(r'C:\Users\saobracajni\Desktop\test\timeslot.png'))
+
+            # Set font and title
+            font = QFont("Verdana", 6)
+            app.setFont(font)
+            window.setWindowTitle('Slot koordinator')
+            
+            # Create an instance of QMenuBar
+            menu_bar = QMenuBar(window)
+
+            # Add the menu bar to the main window
+            window.setMenuBar(menu_bar)
+
+            # Create a File menu and add it to the menu bar
+            file_menu = QMenu('Meni', menu_bar)
+            menu_bar.addMenu(file_menu)
+  
+            # Create a Tools menu and add it to the menu bar
+            tools_menu = QMenu('Alati', menu_bar)
+            menu_bar.addMenu(tools_menu)
+
+            menu_bar.addSeparator()
+            
+            # Create a Info menu and add it to the menu bar
+            info_menu = QMenu('O programu', menu_bar)
+            menu_bar.addMenu(info_menu)
+
+            # Set the size of the main window
+            window.resize(1000, 800)
+
+            # Create a QTableWidget
+            table = QTableWidget()
+
+            # Set the size of the table
+            table.resize(450, 400)
+
+            # Change the font and font size of the table
+            #table.setFont(QFont("Verdana", 8))
+
+            # Set the number of rows and columns
+            table.setRowCount(len(records))
+            table.setColumnCount(4)
+
+            table.setColumnWidth(0, 123)
+            table.setColumnWidth(1, 123)
+            table.setColumnWidth(2, 123)
+            table.setColumnWidth(3, 123)
+
+            # Get the number of rows in the table
+            row_count = table.rowCount()
+
+            # Set the row height to 20 pixels
+            row_height = 10
+
+            # Set the row height for all rows
+            for i in range(table.rowCount()):
+                table.setRowHeight(i, row_height)
+
+            # Set the table headers
+            table.setHorizontalHeaderLabels(['Broj leta', 'Datum', 'Start', 'Kraj'])
+
+            # Set the background color for the column header
+            table.setStyleSheet("QHeaderView::section { background-color: #CAE9F5; }")
+
+            # Make the column headers stretchable
+            header = table.horizontalHeader()       
+            header.setSectionResizeMode(0, QHeaderView.Stretch)
+            header.setSectionResizeMode(1, QHeaderView.Stretch)
+            header.setSectionResizeMode(2, QHeaderView.Stretch)
+            header.setSectionResizeMode(3, QHeaderView.Stretch)
+
+            # Add the records to the table
+            for i, record in enumerate(records):
+                name_item = QTableWidgetItem(record[0])
+                date_item = QTableWidgetItem(record[1])
+                start_item = QTableWidgetItem(record[2])
+                end_item = QTableWidgetItem(record[3])
+                name_item.setTextAlignment(Qt.AlignCenter)
+                date_item.setTextAlignment(Qt.AlignCenter)
+                start_item.setTextAlignment(Qt.AlignCenter)
+                end_item.setTextAlignment(Qt.AlignCenter)
+                table.setItem(i, 0, name_item)
+                table.setItem(i, 1, date_item)
+                table.setItem(i, 2, start_item)
+                table.setItem(i, 3, end_item)
+                
+            table.sortItems(1, QtCore.Qt.AscendingOrder, key=lambda x: (datetime.datetime.strptime(x.text(), '%d-%m-%y') if x.text() else datetime.datetime(1970,1,1)) 
+            except ValueError:
+                print(f"Error parsing date: {x.text()}")
+
+                
+            # Convert the date_column to datetime format
+            #df['date_item'] = pd.to_datetime(df['date_item'], format='%d-%m-%Y')
+
+            # Sort the DataFrame by date_column
+            #df = df.sort_values(by='date_item')
+
+            # Set the table editable
+            table.setEditTriggers(QTableWidget.DoubleClicked)
+            
+            #table.setSortingEnabled(True)
+            
+            # Create a function to delete a record
+            def delete_record():
+                # Get the current selected row
+                row = table.currentRow()
+                # Get the number of rows in the table
+                rows = table.rowCount()
+                if rows > 0:
+                    # Get the name of the record to be deleted
+                    name = table.item(row, 0).text()
+                    date = table.item(row, 1).text()
+                    # Delete the record from the database
+                    cursor.execute('''DELETE FROM records WHERE name=? AND date=?''', (name, date))
+                    # Commit the changes
+                    conn.commit()
+                    # Remove the row from the table
+                    table.removeRow(row)
+                else:
+                    # Show a message indicating that there are no records to delete
+                    QMessageBox.information(window, "Brisanje", "Svi unosi su obrisani!")
+
+            # Create a function to save changes
+            def save_changes():
+                # Get the number of rows in the table
+                rows = table.rowCount()
+                # Iterate through the rows and update the records in the database
+                for row in range(rows):
+                    name = table.item(row, 0).text()
+                    date = table.item(row, 1).text()
+                    start = table.item(row, 2).text()
+                    end = table.item(row, 3).text()
+                    cursor.execute('''UPDATE records SET starttime=?, endtime=? WHERE name=? AND date=?''', (start, end, name, date))
+                # Commit the changes
+                conn.commit()
+                
+            # Create a checkbox for each day of the week
+            monday_checkbox = QCheckBox("Ponedjeljak", window)
+            tuesday_checkbox = QCheckBox("Utorak", window)
+            wednesday_checkbox = QCheckBox("Srijeda", window)
+            thursday_checkbox = QCheckBox("Četvrtak", window)
+            friday_checkbox = QCheckBox("Petak", window)
+            saturday_checkbox = QCheckBox("Subota", window)
+            sunday_checkbox = QCheckBox("Nedjelja", window)
+
+            # Add the checkboxes to a list
+            checkboxes = [monday_checkbox, tuesday_checkbox, wednesday_checkbox, thursday_checkbox, friday_checkbox, saturday_checkbox, sunday_checkbox]
+
+            # Create a function to get the selected days of the week
+            def get_selected_days():
+                # Create a list to store the selected days
+                selected_days = []
+                # Iterate through the checkboxes and add the selected days to the list
+                for i, checkbox in enumerate(checkboxes):
+                    if checkbox.isChecked():
+                        selected_days.append(i)
+                return selected_days
+
+            def add_records():
+                try:
+                    # Prompt the user for the name
+                    name, ok = QInputDialog.getText(window, 'Serijski unos letova', 'Unesi broj leta:')
+                    if ok:
+                        # Prompt the user for the start date
+                        start_date, ok = QInputDialog.getText(window, 'Serijski unos letova', 'Unesi datum početka serije(DD-MM-YYYY):')
+                        if ok:
+                            # Convert the start date to a datetime object
+                            start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+                            # Prompt the user for the end date
+                            end_date, ok = QInputDialog.getText(window, 'Serijski unos letova', 'Unesi datum kraja serije (DD-MM-YYYY):')
+                            if ok:
+                                # Convert the end date to a datetime object
+                                end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+                                # Prompt the user for the start time
+                                start_time, ok = QInputDialog.getText(window, 'Serijski unos letova', 'Unesi vrijeme početka (HH:MM):')
+                                if ok:
+                                    # Convert the start time to a datetime object
+                                    start_time = datetime.datetime.strptime(start_time, '%H:%M')
+                                    # Prompt the user for the end time
+                                    end_time, ok = QInputDialog.getText(window, 'Serijski unos letova', 'Unesi vrijeme kraja (HH:MM):')
+                                    if ok:
+                                        # Convert the end time to a datetime object
+                                        end_time = datetime.datetime.strptime(end_time, '%H:%M')
+                                        # Get the selected days of the week
+                                        selected_days = get_selected_days()
+                                        # Iterate through the dates and add the records to the database
+                                        date = start_date
+                                        while date <= end_date:
+                                            # Check if the current date is a selected day of the week
+                                            if date.weekday() in selected_days:
+                                                # Format the date and time as strings
+                                                date_str = date.strftime('%d-%m-%Y')
+                                                start_time_str = start_time.strftime('%H:%M')
+                                                end_time_str = end_time.strftime('%H:%M')
+                                                # Select all records that overlap the new record
+                                                cursor.execute('''SELECT * FROM records WHERE date=? AND ((starttime BETWEEN ? AND ?) OR (endtime BETWEEN ? AND ?) OR (starttime <= ? AND endtime >= ?))''', (date_str, start_time_str, end_time_str, start_time_str, end_time_str, start_time_str, end_time_str))
+                                                # Fetch the records
+                                                overlapping_records = cursor.fetchall()
+                                                # Get the number of overlapping records
+                                                count = len(overlapping_records)
+                                                # If there are 4 or more overlapping events
+                                                if count >= 4:
+                                                    # Display a message box
+                                                    QMessageBox.information(window, "Preklapanje", "Let: " + name + " se preklapa sa letovima: " + str(overlapping_records))
+                                                    # Suggest the first available 30-minute time slot
+                                                    time_slot = start_time
+                                                    while True:
+                                                        # Check if the current time slot is available
+                                                        cursor.execute('''SELECT * FROM records WHERE date=? AND ((starttime BETWEEN ? AND ?) OR (endtime BETWEEN ? AND ?) OR (starttime <= ? AND endtime >= ?))''', (date_str, time_slot.strftime('%H:%M'), (time_slot + timedelta(minutes=30)).strftime('%H:%M'), time_slot.strftime('%H:%M'), (time_slot + timedelta(minutes=30)).strftime('%H:%M'), time_slot.strftime('%H:%M'), (time_slot + timedelta(minutes=30)).strftime('%H:%M')))
+                                                        # Fetch the records
+                                                        overlapping_records = cursor.fetchall()
+                                                        # Get the number of overlapping records
+                                                        count = len(overlapping_records)
+                                                        # If there are no overlapping records
+                                                        if count == 0:
+                                                            # Suggest the current time slot
+                                                            QMessageBox.information(window, "Preklapanje", "Preporuka: " + time_slot.strftime('%H:%M') + " - " + (time_slot + timedelta(minutes=30)).strftime('%H:%M'))
+                                                            break
+                                                        # If there are overlapping records
+                                                        else:
+                                                            # Go to the next 30-minute time slot
+                                                            time_slot += timedelta(minutes=30)
+                                                # If there are less than 4 overlapping events
+                                                else:
+                                                    # Add the record to the database
+                                                    cursor.execute('''INSERT INTO records(name, date, starttime, endtime) VALUES(?,?,?,?)''', (name, date_str, start_time_str, end_time_str))
+                                                    conn.commit()
+                                            # Go to the next date
+                                            date += timedelta(days=1)
+                                            refresh_table()
+                except Exception as e:
+                    QMessageBox.warning(window, 'Greska', str(e))
+
+                    # Rollback any changes
+                    conn.rollback()
+                
+            # Create an "Add Records" button
+            add_button = QPushButton(' Unos', window)
+
+            # Connect the button to the add_records function
+            add_button.clicked.connect(add_records)
+
+            # setting icon to the button
+            add_button.setIcon(QIcon(r'C:\Users\saobracajni\Desktop\test\plus.png'))
+
+            # Create a delete button
+            delete_button = QPushButton(' Brisanje', window)
+
+            # Connect the delete button to the delete function
+            delete_button.clicked.connect(delete_record)
+
+            # setting icon to the button
+            delete_button.setIcon(QIcon(r'C:\Users\saobracajni\Desktop\test\minus.png'))
+
+            # Create a save button
+            save_button = QPushButton(' Snimanje', window)
+
+            # Connect the save button to the save function
+            save_button.clicked.connect(save_changes)
+
+            # setting icon to the button
+            save_button.setIcon(QIcon(r'C:\Users\saobracajni\Desktop\test\save.png'))
+
+            # Create a refresh button
+            refresh_button = QPushButton(' Učitavanje tabele', window)
+
+            # Connect the refresh button to the refresh function
+            refresh_button.clicked.connect(refresh_table)
+
+            # setting icon to the button
+            refresh_button.setIcon(QIcon(r'C:\Users\saobracajni\Desktop\test\folder.png'))
+
+            # Create a layout for the table and buttons
+            
+            layoutmain = QHBoxLayout()   
+             
+            layout = QVBoxLayout()
+
+            layout2 = QHBoxLayout()
+
+            layout3 = QHBoxLayout()
+
+
+            # Create a QCalendarWidget
+            calendar = QCalendarWidget()
+
+            # Set the minimum and maximum dates
+            calendar.setMinimumDate(QDate(1900, 1, 1))
+            calendar.setMaximumDate(QDate(2100, 12, 31))
+
+            # Set the calendar to the current date
+            calendar.setSelectedDate(QDate.currentDate())
+
+            #my_widget = MyWidget()
+            #selected_date = QDate.selectedDate()
+            #my_widget.display_date_records(selected_date)
+
+            layout5 = QVBoxLayout()
+
+            def display_date_records(calendar):
+                # Establish a connection to the SQLite database
+                connection = sqlite3.connect(r'C:\Users\saobracajni\Desktop\test\test.db')
+                
+                # Create a cursor
+                cursor = connection.cursor()
+
+                # Get the selected date from the calendar widget
+                date = calendar.selectedDate()
+                
+                # Get the selected date from the calendar widget
+                #date_string = date.toString("dd-MM-yyyy")
+                
+                date_string = date.toPyDate().strftime('%d-%m-%Y')
+
+                
+                # Select all records from the table for the selected date
+                cursor.execute('''SELECT * FROM records WHERE date=? ORDER BY starttime''', (date_string,))
+
+                # Fetch all records
+                records = cursor.fetchall()
+
+                if len(records)==0:
+                    QMessageBox.information(window, "Nema evidencije", "Nema evidencije za ovaj datum.")
+                else:
+
+                    # Set the number of rows and columns
+                    table = QTableWidget()
+                    table.setRowCount(len(records))
+                    table.setColumnCount(4)
+
+                    table.setColumnWidth(0, 123)
+                    table.setColumnWidth(1, 123)
+                    table.setColumnWidth(2, 123)
+                    table.setColumnWidth(3, 123)
+
+                    # Get the number of rows in the table
+                    row_count = table.rowCount()
+
+                    # Set the row height to 20 pixels
+                    row_height = 10
+
+                    # Set the row height for all rows
+                    for i in range(table.rowCount()):
+                        table.setRowHeight(i, row_height)
+
+                    # Set the table headers
+                    table.setHorizontalHeaderLabels(['Broj leta', 'Datum', 'Start', 'Kraj'])
+
+                    # Set the background color for the column header
+                    table.setStyleSheet("QHeaderView::section { background-color: #CAE9F5; }")
+                    
+                    # Make the column headers stretchable
+                    header = table.horizontalHeader()       
+                    header.setSectionResizeMode(0, QHeaderView.Stretch)
+                    header.setSectionResizeMode(1, QHeaderView.Stretch)
+                    header.setSectionResizeMode(2, QHeaderView.Stretch)
+                    header.setSectionResizeMode(3, QHeaderView.Stretch)
+
+                    # Add the records to the table
+                    for i, record in enumerate(records):
+                        name_item = QTableWidgetItem(record[0])
+                        date_item = QTableWidgetItem(record[1])
+                        start_item = QTableWidgetItem(record[2])
+                        end_item = QTableWidgetItem(record[3])
+                        name_item.setTextAlignment(Qt.AlignCenter)
+                        date_item.setTextAlignment(Qt.AlignCenter)
+                        start_item.setTextAlignment(Qt.AlignCenter)
+                        end_item.setTextAlignment(Qt.AlignCenter)
+                        table.setItem(i, 0, name_item)
+                        table.setItem(i, 1, date_item)
+                        table.setItem(i, 2, start_item)
+                        table.setItem(i, 3, end_item)
+                        
+                    #print(date_string)
+
+                    for i in range(layout5.count()):
+                        if layout5.itemAt(i) and isinstance(layout5.itemAt(i).widget(), QTableWidget):
+                            #layout5.itemAt(i).widget().setParent(layout)
+                            layout5.removeWidget(layout5.itemAt(i).widget())
+                            break
+                    layout5.addWidget(table)
+                
+                # close the cursor and connection
+                #cursor.close()
+                #connection.close()
+
+            calendar.clicked[QDate].connect(lambda: display_date_records(calendar))
+            # Connect the selectionChanged signal of the calendar to the display_date_records slot
+            #selectionChanged.connect(display_date_records)
+                    
+            # Connect the selectionChanged signal of the calendar to the display_date_records slot
+            #calendar.selectionChanged.connect(display_date_records)
+            #display_date_records
+
+            # Add actions to the File menu
+            refresh_t = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\folder.png'), 'Učitavanje', window)            
+            add_t = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\plus.png'), 'Unos letova', window)   
+            delete_t = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\minus.png'), 'Brisanje letova', window) 
+            quit_action = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\exit.png'), 'Izlaz', window)
+            
+            file_menu.addAction(refresh_t)
+            file_menu.addAction(add_t)
+            file_menu.addAction(delete_t)            
+            file_menu.addSeparator()
+   
+            quit_action.triggered.connect(window.close) 
+            file_menu.addAction(quit_action)
+            add_t.triggered.connect(add_records)
+            delete_t.triggered.connect(delete_record)
+            refresh_t.triggered.connect(refresh_table)
+            
+           # Add Tools to the menu bar
+            print_table = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\print.png'), 'Štampanje', window) 
+            tools_menu.addAction(print_table)   
+            print_table.triggered.connect(print_form)            
+
+            export_table = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\export.png'), 'Eksport u CSV', window) 
+            tools_menu.addAction(export_table)
+
+           # Add Info to the menu bar
+            info_table = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\info.png'), 'O programu', window) 
+            info_menu.addAction(info_table)   
+        
+            # Add a Version action to the File menu
+            version_table = QAction(QIcon(r'C:\Users\saobracajni\Desktop\test\version.png'), 'Verzija 1.0.0', window)
+            info_menu.addAction(version_table)            
+            
+            # Connect the Quit action to the close slot of the main window
+            quit_action.triggered.connect(window.close)            
+
+            # Add the calendar to the layout
+            layout4 = QVBoxLayout()
+            layout4.setContentsMargins(0, 0, 0, 0)
+            layout4.addWidget(calendar)
+
+            # Add the table and buttons to the layout
+            layout.addWidget(table)
+            layout3.addWidget(refresh_button)
+            layout3.addWidget(add_button)
+            layout3.addWidget(delete_button)
+            layout3.addWidget(save_button)
+
+            # Add the checkboxes to the layout
+            layout2.addWidget(monday_checkbox)
+            layout2.addWidget(tuesday_checkbox)
+            layout2.addWidget(wednesday_checkbox)
+            layout2.addWidget(thursday_checkbox)
+            layout2.addWidget(friday_checkbox)
+            layout2.addWidget(saturday_checkbox)
+            layout2.addWidget(sunday_checkbox)
+            
+            # Add the 4 R buttons to the layout            
+           
+            layoutbuttons = QtWidgets.QVBoxLayout()
+            
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P7"),0,QtCore.Qt.AlignBottom)
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P6"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P5"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P4"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P3"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P2"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("P1"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("G7"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("G8"))
+            layoutbuttons.addWidget(QtWidgets.QPushButton("G9"))
+            
+            layoutmain.addLayout(layoutbuttons)           
+   
+            layout.addLayout(layout3)
+
+            layout.addLayout(layout2)
+
+            layout.addLayout(layout4)
+
+            layout.addLayout(layout5)
+            
+            layoutmain.addLayout(layout)
+
+            # Create a central widget to hold the layout
+            central_widget = QWidget(window)
+
+            # Set the layout on the central widget
+            central_widget.setLayout(layoutmain)
+
+            # Set the central widget on the main window
+            window.setCentralWidget(central_widget)
+
+            # Show the window
+            window.show()
+
+            # Run the application
+            app.exec_()
+
+            # Close the connection
+            conn.close()
+        else:
+            #message.set("Pogrešno ime/lozinka!")
+            messagebox.showinfo("Greška", "Pogrešno ime ili lozinka!")
+#defining loginform function
+def Loginform():
+    global login_screen
+    login_screen = Tk()
+    login_screen.option_add('*Font', 'Verdana, 8')
+    #Setting title of screen
+    login_screen.title("Slot koordinator")
+    #photo = PhotoImage(file = "C:\\Users\\saobracajni\\Desktop\\test\\timeslot2.png")
+    #login_screen.iconphoto(False, photo)  
+    #setting height and width of screen
+    login_screen.geometry("290x110")
+    login_screen.resizable(False, False)
+    login_screen.attributes('-toolwindow', True)
+    #login_screen.overrideredirect(1)
+    login_screen.eval('tk::PlaceWindow . center')
+    
+    frame1 = Frame(login_screen, highlightbackground="gray", highlightthickness=1,width=288, height=109, bd= 1)
+    frame1.pack()
+    
+    #login_screen["bg"]="#1C2833"
+    #declaring variable
+    global message;
+    global username
+    global password
+    username = StringVar()
+    password = StringVar()
+    message=StringVar()
+    #Creating layout of login form
+    #Label(login_screen,width="300", text="Prijava", font=("Verdana", 8)).pack()
+    #Username Label
+    Label(login_screen, text="Korisnik * ").place(x=10,y=10)
+    
+    #Username textbox
+    Entry(login_screen, textvariable=username).place(x=90,y=10)
+    #Password Label
+    Label(login_screen, text="Šifra * ").place(x=10,y=40)
+    #Password textbox
+    Entry(login_screen, textvariable=password ,show="*").place(x=90,y=40)
+    #Label for displaying login status[success/failed]
+    Label(login_screen, text="",textvariable=message).place(x=10,y=80)
+    #Login button
+    Button(login_screen, text="Prijava", width=10, height=0, command=login).place(x=175,y=70)
+    login_screen.mainloop()
+#calling function Loginform
+Loginform()
+
+#root.mainloop()
+
+
+
